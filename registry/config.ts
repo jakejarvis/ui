@@ -1,8 +1,9 @@
 export const registryConfig = {
-  name: "_cn",
-  registryName: "_cn",
-  namespace: "@_cn",
-  description: "A TanStack Start template for publishing a shadcn-compatible registry.",
-  homepage: "https://underscore-cn.vercel.app",
-  repositoryUrl: "https://github.com/jakejarvis/_cn",
+  name: "@jarvis-ui",
+  registryName: "jarvis-ui",
+  namespace: "@jarvis-ui",
+  description:
+    "An intentionally random collection of components and blocks, likely only useful to one person (me).",
+  homepage: "https://ui.jarv.is",
+  repositoryUrl: "https://github.com/jakejarvis/ui",
 } as const;

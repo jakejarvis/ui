@@ -1,0 +1,36 @@
+---
+name: copyable-field
+type: registry:ui
+title: Copyable Field
+description: A selectable, horizontally scrollable field with a copy action.
+registryDependencies:
+  - field
+  - input-group
+localRegistryDependencies:
+  - copy-button
+  - scroll-area
+---
+
+import { CopyableField } from "./copyable-field";
+
+Use a copyable field for install commands, API keys, and long single-line values.
+
+```tsx
+import { CopyableField } from "@/components/ui/copyable-field";
+
+export function Example() {
+  return <CopyableField label="Install" value="bunx --bun shadcn@latest add ..." />;
+}
+```
+
+export function Preview() {
+  return (
+    <div className="flex w-full max-w-xl flex-col gap-4">
+      <CopyableField
+        label="Install"
+        value="bunx --bun shadcn@latest add https://ui.jarv.is/r/copyable-field.json"
+      />
+      <CopyableField label="Token" value="jui_live_7vK8x8e8f95hK2hVv4sYQxB3" showLabel={false} />
+    </div>
+  );
+}

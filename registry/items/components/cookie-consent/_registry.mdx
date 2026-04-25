@@ -1,0 +1,24 @@
+---
+name: cookie-consent
+type: registry:ui
+title: Cookie Consent
+description: A compact cookie consent card with pluggable accept and decline handlers.
+registryDependencies:
+  - button
+---
+
+import { CookieConsent } from "./cookie-consent";
+
+Use controlled or uncontrolled state to connect the consent card to your preference storage.
+
+```tsx
+import { CookieConsent } from "@/components/ui/cookie-consent";
+
+export function Example() {
+  return <CookieConsent onConsentChange={(decision) => console.log(decision)} />;
+}
+```
+
+export function Preview() {
+  return <CookieConsent />;
+}

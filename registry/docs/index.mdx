@@ -1,14 +1,17 @@
 ---
 title: Introduction
-description: Publish installable components with public docs from the same registry workspace.
+description: Install @jarvis-ui items with the shadcn CLI.
 order: 0
 ---
 
-This registry publishes copy-and-paste components, blocks, hooks, and utilities that can be installed with the shadcn CLI.
+@jarvis-ui is a shadcn-compatible registry of copy-and-paste components, blocks, hooks, and
+utilities for product interfaces, powered by [\_cn](https://github.com/jakejarvis/_cn).
 
-Use the docs in this section to set up the registry, customize the site, and publish your own items.
+Install any @jarvis-ui item with the command shown on its docs page.
 
-<Callout title="Authoring model">
-  Registry docs live in `registry/docs`. Installable source lives in `registry/items`. You can
-  update any of these files freely (or completely delete them!)
-</Callout>
+```sh
+npx shadcn@latest add https://ui.jarv.is/r/copy-button.json
+```
+
+Use the package manager selector on item pages to switch between npm, pnpm, yarn, and bun commands.
+The installed files are regular React components you can edit in your app.
