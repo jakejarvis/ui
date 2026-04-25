@@ -2,6 +2,7 @@ import { IconArrowRight, IconBlocks, IconBooks, IconHome } from "@tabler/icons-r
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Analytics } from "@vercel/analytics/react";
 
 import { NavigationProgress } from "@/components/docs/navigation-progress";
 import { SiteFooter } from "@/components/docs/site-footer";
@@ -69,6 +70,7 @@ function RootRoute() {
           <SiteFooter />
         </div>
       </TooltipProvider>
+      <Analytics />
     </ThemeProvider>
   );
 }
