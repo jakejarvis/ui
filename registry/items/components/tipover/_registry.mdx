@@ -2,7 +2,7 @@
 name: tipover
 type: registry:ui
 title: Tipover
-description: A touch-friendly tooltip that falls back to a popover on coarse pointers.
+description: A touch-friendly tooltip/popover hybrid.
 dependencies:
   - "@base-ui/react"
 files:
@@ -15,8 +15,7 @@ files:
 import { Button } from "@/components/ui/button";
 import { Tipover, TipoverContent, TipoverTrigger } from "./tipover";
 
-Use tipover when a hint should behave like a tooltip on hover devices and a popover on touch
-devices.
+Use a `Tipover` instead of a `Tooltip` when the information must be accessible to all users regardless of device type.
 
 ```tsx
 import { Tipover, TipoverContent, TipoverTrigger } from "@/components/ui/tipover";
@@ -35,7 +34,7 @@ export function Preview() {
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       <Tipover>
-        <TipoverTrigger render={<Button variant="outline" />}>What is Tipover?</TipoverTrigger>
+        <TipoverTrigger render={<Button variant="outline" />}>Wtf is a Tipover?</TipoverTrigger>
         <TipoverContent side="top" className="max-w-56 text-center">
           A tooltip on hover devices and a popover on touch devices.
         </TipoverContent>
