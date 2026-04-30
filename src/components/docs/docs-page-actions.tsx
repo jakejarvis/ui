@@ -18,11 +18,17 @@ import {
 
 type DocsPageActionsProps = {
   markdownPath: string;
+  pageDescription: string;
+  pageTitle: string;
   pageUrl: string;
+  registryItemJsonUrl?: string;
   className?: string;
 };
 
-type DocsPageActionUrls = Pick<DocsPageActionsProps, "markdownPath" | "pageUrl">;
+type DocsPageActionUrls = Pick<
+  DocsPageActionsProps,
+  "markdownPath" | "pageDescription" | "pageTitle" | "pageUrl" | "registryItemJsonUrl"
+>;
 
 type DocsPageActionLink = {
   label: string;
@@ -31,7 +37,7 @@ type DocsPageActionLink = {
 
 type MenuItem = {
   label: string;
-  href: (urls: DocsPageActionUrls) => string;
+  href: (urls: DocsPageActionUrls) => string | null;
   icon: (props: SVGProps<SVGSVGElement>) => ReactElement;
 };
 
@@ -43,7 +49,14 @@ const menuItems: readonly MenuItem[] = [
   },
   {
     label: "Open in v0",
-    href: ({ pageUrl }) => getPromptUrl("https://v0.app", pageUrl),
+    href: ({ pageDescription, pageTitle, registryItemJsonUrl }) =>
+      registryItemJsonUrl
+        ? getV0RegistryItemUrl({
+            prompt: pageDescription,
+            registryItemJsonUrl,
+            title: pageTitle,
+          })
+        : null,
     icon: V0Icon,
   },
   {
@@ -63,7 +76,14 @@ const menuItems: readonly MenuItem[] = [
   },
 ];
 
-export function DocsPageActions({ markdownPath, pageUrl, className }: DocsPageActionsProps) {
+export function DocsPageActions({
+  markdownPath,
+  pageDescription,
+  pageTitle,
+  pageUrl,
+  registryItemJsonUrl,
+  className,
+}: DocsPageActionsProps) {
   return (
     <ButtonGroup
       className={cn(
@@ -85,22 +105,27 @@ export function DocsPageActions({ markdownPath, pageUrl, className }: DocsPageAc
           <IconChevronDown data-icon aria-hidden="true" />
           <span className="sr-only">Open page actions menu</span>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-max min-w-56">
+        <DropdownMenuContent align="end" className="w-max">
           <DropdownMenuGroup>
             {menuItems.map((item) => {
               const Icon = item.icon;
+              const href = item.href({
+                markdownPath,
+                pageDescription,
+                pageTitle,
+                pageUrl,
+                registryItemJsonUrl,
+              });
+
+              if (!href) {
+                return null;
+              }
 
               return (
                 <DropdownMenuItem
                   key={item.label}
                   className="cursor-pointer gap-2 px-2 py-1.5 [&_svg:not([class*='text-'])]:text-muted-foreground"
-                  render={
-                    <a
-                      href={item.href({ markdownPath, pageUrl })}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
+                  render={<a href={href} target="_blank" rel="noopener noreferrer" />}
                 >
                   <Icon aria-hidden="true" data-icon="inline-start" />
                   <span>{item.label}</span>
@@ -115,10 +140,11 @@ export function DocsPageActions({ markdownPath, pageUrl, className }: DocsPageAc
 }
 
 export function getDocsPageActionLinks(urls: DocsPageActionUrls): DocsPageActionLink[] {
-  return menuItems.map((item) => ({
-    label: item.label,
-    href: item.href(urls),
-  }));
+  return menuItems.flatMap((item) => {
+    const href = item.href(urls);
+
+    return href ? [{ label: item.label, href }] : [];
+  });
 }
 
 export async function getDocsPageMarkdown(markdownPath: string): Promise<string> {
@@ -144,6 +170,24 @@ Study it and let me know when you're ready to answer my questions.`;
   promptUrl.searchParams.set("q", prompt);
 
   return promptUrl.toString();
+}
+
+function getV0RegistryItemUrl({
+  prompt,
+  registryItemJsonUrl,
+  title,
+}: {
+  prompt: string;
+  registryItemJsonUrl: string;
+  title: string;
+}): string {
+  const openUrl = new URL("https://v0.dev/chat/api/open");
+
+  openUrl.searchParams.set("url", registryItemJsonUrl);
+  openUrl.searchParams.set("title", title.trim());
+  openUrl.searchParams.set("prompt", prompt.trim());
+
+  return openUrl.toString();
 }
 
 function MarkdownIcon(props: SVGProps<SVGSVGElement>) {

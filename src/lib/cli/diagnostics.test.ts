@@ -16,54 +16,49 @@ describe("registry diagnostics", () => {
   });
 
   test("reports missing published source files as errors", () => {
-    const { "registry/items/components/example-card/example-card.tsx": _source, ...files } =
+    const { "registry/items/components/fixture-card/fixture-card.tsx": _source, ...files } =
       getValidRegistryFiles();
     const diagnostics = getRegistryDiagnostics({ files });
 
     expect(diagnostics.errors).toContainEqual({
       level: "error",
-      path: "registry/items/components/example-card/example-card.tsx",
+      path: "registry/items/components/fixture-card/fixture-card.tsx",
       message:
-        'Registry item "example-card" references a missing file: registry/items/components/example-card/example-card.tsx',
+        'Registry item "fixture-card" references a missing file: registry/items/components/fixture-card/fixture-card.tsx',
     });
   });
 
-  test("reports unsupported published source files as errors", () => {
+  test("accepts arbitrary published text source files", () => {
     const diagnostics = getRegistryDiagnostics({
       files: {
-        "registry/items/components/example-card/_registry.mdx": getRegistryMdx({
+        "registry/items/components/fixture-card/_registry.mdx": getRegistryMdx({
           files: [
             {
-              path: "registry/items/components/example-card/README.md",
+              path: "README.md",
               type: "registry:ui",
             },
           ],
         }),
-        "registry/items/components/example-card/README.md": "# Example card",
+        "registry/items/components/fixture-card/README.md": "# Fixture card",
       },
     });
 
-    expect(diagnostics.errors).toContainEqual({
-      level: "error",
-      path: "registry/items/components/example-card/README.md",
-      message:
-        'Registry item "example-card" references an unsupported source file type: registry/items/components/example-card/README.md',
-    });
+    expect(diagnostics.errors).toEqual([]);
   });
 
   test("warns about supported source files that the item does not publish", () => {
     const diagnostics = getRegistryDiagnostics({
       files: {
         ...getValidRegistryFiles(),
-        "registry/items/components/example-card/demo.tsx": "export function Demo() {}",
+        "registry/items/components/fixture-card/demo.tsx": "export function Demo() {}",
       },
     });
 
     expect(diagnostics.errors).toEqual([]);
     expect(diagnostics.warnings).toContainEqual({
       level: "warning",
-      path: "registry/items/components/example-card/demo.tsx",
-      message: 'Registry item "example-card" does not publish this source file.',
+      path: "registry/items/components/fixture-card/demo.tsx",
+      message: 'Registry item "fixture-card" does not publish this source file.',
     });
   });
 
@@ -82,19 +77,30 @@ describe("registry diagnostics", () => {
     });
   });
 
-  test("warns about unsupported ignored files inside item folders", () => {
+  test("does not warn about orphan folders that only contain ignored files", () => {
+    const diagnostics = getRegistryDiagnostics({
+      files: {
+        "registry/items/components/empty-ish/.DS_Store": "",
+      },
+    });
+
+    expect(diagnostics.errors).toEqual([]);
+    expect(diagnostics.warnings).toEqual([]);
+  });
+
+  test("warns about unpublished files inside item folders", () => {
     const diagnostics = getRegistryDiagnostics({
       files: {
         ...getValidRegistryFiles(),
-        "registry/items/components/example-card/README.md": "# Internal notes",
+        "registry/items/components/fixture-card/README.md": "# Internal notes",
       },
     });
 
     expect(diagnostics.errors).toEqual([]);
     expect(diagnostics.warnings).toContainEqual({
       level: "warning",
-      path: "registry/items/components/example-card/README.md",
-      message: 'Registry item "example-card" ignores unsupported file type.',
+      path: "registry/items/components/fixture-card/README.md",
+      message: 'Registry item "fixture-card" does not publish this source file.',
     });
   });
 
@@ -114,11 +120,36 @@ describe("registry diagnostics", () => {
     });
   });
 
+  test("reports unsafe registry file paths before they are normalized away", () => {
+    for (const path of ["../fixture-card.tsx", "/fixture-card.tsx", "~/fixture-card.tsx"]) {
+      const diagnostics = getRegistryDiagnostics({
+        files: {
+          "registry/items/components/fixture-card/_registry.mdx": getRegistryMdx({
+            files: [
+              {
+                path,
+                type: "registry:ui",
+              },
+            ],
+          }),
+          "registry/items/components/fixture-card/fixture-card.tsx":
+            "export function FixtureCard() {}",
+        },
+      });
+
+      expect(diagnostics.errors).toContainEqual({
+        level: "error",
+        path,
+        message: `Registry item "fixture-card" contains an invalid install path: ${path}`,
+      });
+    }
+  });
+
   test("does not fail the doctor command for warnings only", () => {
     const diagnostics = getRegistryDiagnostics({
       files: {
         ...getValidRegistryFiles(),
-        "registry/items/components/example-card/README.md": "# Internal notes",
+        "registry/items/components/fixture-card/README.md": "# Internal notes",
       },
     });
 
@@ -130,8 +161,8 @@ describe("registry diagnostics", () => {
 
 function getValidRegistryFiles(): Record<string, string> {
   return {
-    "registry/items/components/example-card/_registry.mdx": getRegistryMdx(),
-    "registry/items/components/example-card/example-card.tsx": "export function ExampleCard() {}",
+    "registry/items/components/fixture-card/_registry.mdx": getRegistryMdx(),
+    "registry/items/components/fixture-card/fixture-card.tsx": "export function FixtureCard() {}",
   };
 }
 
@@ -148,9 +179,9 @@ function getRegistryMdx(
     : "";
 
   return `---
-name: example-card
+name: fixture-card
 type: registry:ui
-title: Example Card
+title: Fixture Card
 description: A test card.${files}
 ---
 
