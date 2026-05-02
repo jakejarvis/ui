@@ -2,31 +2,158 @@
 name: toast
 type: registry:ui
 title: Toast
-description: An opinionated toast manager and toaster built on Base UI with a Sonner-adjacent API.
+description: A stacked toast manager built on Base UI with promise helpers, inline actions, and optional expandable details.
 dependencies:
   - "@base-ui/react"
   - "@tabler/icons-react"
 registryDependencies:
+  - button
   - spinner
 ---
 
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "./toast";
 
-Render `Toaster` once near your app root, then call `toast` from client components.
+### App root setup
+
+Render one `Toaster` near your React app root, then call `toast` from any client component.
 
 ```tsx
-import { Toaster, toast } from "@/components/ui/toast";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 
-export function Example() {
-  return (
-    <>
-      <button onClick={() => toast.success("Saved")}>Show toast</button>
-      <Toaster />
-    </>
-  );
+import { Toaster } from "@/components/ui/toast";
+import { App } from "./app";
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+    <Toaster closeButton richColors position="bottom-right" />
+  </StrictMode>,
+);
+```
+
+### Basic feedback
+
+Use basic typed toasts for routine product feedback.
+
+```tsx
+import { toast } from "@/components/ui/toast";
+
+export function SaveButton() {
+  return <button onClick={() => toast.success("Saved")}>Save</button>;
 }
 ```
+
+### Descriptions
+
+Add descriptions when the user needs context, not just confirmation.
+
+```tsx
+toast.success("Deployment complete", {
+  description: "Production is now serving build 1042.",
+});
+
+toast.warning("Verification paused", {
+  description: "A required secret is missing for the production smoke test.",
+});
+```
+
+### Actions
+
+Use actions for reversible operations or next steps.
+
+```tsx
+toast.info("Invite copied", {
+  action: {
+    label: "Undo",
+    onClick: () => {
+      void restoreInvite(inviteId);
+    },
+  },
+});
+```
+
+### Promise states
+
+Use `toast.promise` when a toast should track an async operation from loading to final state.
+
+```tsx
+await toast.promise(publishRelease(), {
+  loading: {
+    title: "Publishing release",
+    description: "Uploading assets and warming the deployment.",
+  },
+  success: (release) => ({
+    title: "Release published",
+    description: `${release.version} is live in production.`,
+  }),
+  error: (error) => ({
+    title: "Publish failed",
+    description: error instanceof Error ? error.message : "Try again from the releases page.",
+  }),
+});
+```
+
+### Error details
+
+Error toasts with string descriptions include a copy-details button by default. Set
+`hideCopyButton` when copying the description is not useful.
+
+```tsx
+toast.error("Upload failed", {
+  description:
+    "The source map upload hit a permissions error. Re-authenticate the CI token and retry.",
+  closeButton: true,
+});
+```
+
+### Expandable details
+
+Use expandable content for diagnostics, checklists, or secondary detail that should not
+dominate the collapsed toast.
+
+```tsx
+toast.warning("Verification paused", {
+  description: "A required secret is missing for the production smoke test.",
+  actionLayout: "stacked-end",
+  actionVariant: "outline",
+  action: {
+    label: "Open checklist",
+    onClick: () => openDeploymentChecklist(),
+  },
+  expandableContent: (
+    <ul>
+      <li>`VERCEL_TOKEN` is not configured for this environment.</li>
+      <li>`POSTHOG_API_KEY` is missing from the deployment step.</li>
+      <li>Smoke tests were skipped after the build artifact upload.</li>
+    </ul>
+  ),
+});
+```
+
+### Manual dismissal
+
+Use a longer-lived loading toast when work crosses screens, then dismiss it explicitly.
+
+```tsx
+const toastId = toast.loading("Syncing workspace", {
+  description: "This can take a few seconds.",
+  duration: 30_000,
+});
+
+try {
+  await syncWorkspace();
+  toast.success("Workspace synced");
+} finally {
+  toast.dismiss(toastId);
+}
+```
+
+### API
+
+Refer to the [Base UI documentation](https://base-ui.com/react/components/toast) for more details.
 
 export function Preview() {
   return (
@@ -58,7 +185,8 @@ export function Preview() {
         variant="outline"
         onClick={() =>
           toast.error("Upload failed", {
-            description: "Check the file and try again.",
+            description:
+              "The source map upload hit a permissions error. Re-authenticate the CI token or retry with a token that can publish release artifacts.",
             closeButton: true,
           })
         }
@@ -78,6 +206,33 @@ export function Preview() {
         }
       >
         Action
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() =>
+          toast.warning("Verification paused", {
+            description: "A required secret is missing for the production smoke test.",
+            actionLayout: "stacked-end",
+            actionVariant: "outline",
+            action: {
+              label: "Open checklist",
+              onClick: () =>
+                toast("Checklist opened", {
+                  description: "Review env vars, preview URLs, and deploy protection.",
+                }),
+            },
+            expandableContent: (
+              <ul className="list-disc space-y-1 pl-4">
+                <li>`VERCEL_TOKEN` is not configured for the environment.</li>
+                <li>`POSTHOG_API_KEY` is missing from the deployment step.</li>
+                <li>Smoke tests were skipped after the build artifact upload.</li>
+              </ul>
+            ),
+          })
+        }
+      >
+        Details
       </Button>
       <Toaster closeButton richColors position="bottom-right" />
     </div>
