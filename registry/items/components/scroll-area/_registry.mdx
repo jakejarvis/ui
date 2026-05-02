@@ -9,6 +9,8 @@ dependencies:
 
 import { ScrollArea } from "./scroll-area";
 
+### Basic viewport
+
 Use the scroll area when content needs a compact viewport with subtle edge fades and overlay
 scrollbars.
 
@@ -17,6 +19,86 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function Example() {
   return <ScrollArea className="h-48">...</ScrollArea>;
+}
+```
+
+### Lists and sidebars
+
+Give the root a fixed height and put normal block content inside.
+
+```tsx
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export function ActivityList({ items }: { items: string[] }) {
+  return (
+    <ScrollArea className="h-64 rounded-lg border" scrollbarGutter>
+      <div className="space-y-3 p-4">
+        {items.map((item) => (
+          <div key={item} className="text-sm">
+            {item}
+          </div>
+        ))}
+      </div>
+    </ScrollArea>
+  );
+}
+```
+
+### Horizontal overflow
+
+Use it for long single-line content too. The edge fade works on both axes.
+
+```tsx
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export function CommandStrip() {
+  return (
+    <ScrollArea className="w-80 rounded-md border" scrollbarGutter>
+      <pre className="p-3 text-sm">
+        bunx --bun shadcn@latest add https://ui.jarv.is/r/scroll-area.json
+      </pre>
+    </ScrollArea>
+  );
+}
+```
+
+### Disable chrome
+
+Turn off fades or scrollbars when another surface already supplies that affordance.
+
+```tsx
+import type { ReactNode } from "react";
+
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export function PlainScrollablePanel({ children }: { children: ReactNode }) {
+  return (
+    <ScrollArea className="h-72" scrollFade={false} hideScrollbar>
+      {children}
+    </ScrollArea>
+  );
+}
+```
+
+### Access scroll nodes
+
+Use refs when you need imperative scroll restoration or measurement.
+
+```tsx
+import { useRef } from "react";
+
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export function RestorableLog({ entries }: { entries: string[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <ScrollArea className="h-72" scrollRef={scrollRef}>
+      {entries.map((entry) => (
+        <p key={entry}>{entry}</p>
+      ))}
+    </ScrollArea>
+  );
 }
 ```
 

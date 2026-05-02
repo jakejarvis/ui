@@ -13,6 +13,8 @@ localRegistryDependencies:
 
 import { CopyableField } from "./copyable-field";
 
+### Commands and tokens
+
 Use a copyable field for install commands, API keys, and long single-line values.
 
 ```tsx
@@ -20,6 +22,79 @@ import { CopyableField } from "@/components/ui/copyable-field";
 
 export function Example() {
   return <CopyableField label="Install" value="bunx --bun shadcn@latest add ..." />;
+}
+```
+
+### Separate display and copy values
+
+Use `copyValue` when the visible text should be shortened but the copied value should stay exact.
+
+```tsx
+import { CopyableField } from "@/components/ui/copyable-field";
+
+export function ApiKeyField() {
+  return (
+    <CopyableField
+      label="API key"
+      value="jui_live_7vK8x...xB3"
+      copyValue="jui_live_7vK8x8e8f95hK2hVv4sYQxB3"
+      copyLabel="Copy API key"
+    />
+  );
+}
+```
+
+### Hidden label
+
+Hide the visual label when the surrounding UI already provides context. The label remains
+available to assistive technology.
+
+```tsx
+import { CopyableField } from "@/components/ui/copyable-field";
+
+export function CompactTokenField({ token }: { token: string }) {
+  return <CopyableField label="Project token" value={token} showLabel={false} />;
+}
+```
+
+### Custom rendered value
+
+Render children when you need syntax highlighting or visual masking, while keeping the copied value
+plain.
+
+```tsx
+import { CopyableField } from "@/components/ui/copyable-field";
+
+export function HighlightedCommand() {
+  return (
+    <CopyableField label="Install" value="pnpm dlx shadcn@latest add https://ui.jarv.is/r/toast.json">
+      <span className="text-muted-foreground">pnpm dlx</span>{" "}
+      shadcn@latest add https://ui.jarv.is/r/toast.json
+    </CopyableField>
+  );
+}
+```
+
+### Copy callbacks
+
+Use callbacks to track successful copies or surface clipboard failures.
+
+```tsx
+import { CopyableField } from "@/components/ui/copyable-field";
+
+export function TrackedCopyField({ command }: { command: string }) {
+  return (
+    <CopyableField
+      label="CLI command"
+      value={command}
+      onCopy={(value) => {
+        console.log(`Copied ${value}`);
+      }}
+      onCopyError={(error) => {
+        console.error("Could not copy command", error);
+      }}
+    />
+  );
 }
 ```
 

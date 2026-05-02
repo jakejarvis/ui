@@ -7,6 +7,8 @@ description: A compact browser chrome frame for screenshots and previews.
 
 import { BrowserWindow, BrowserWindowContent } from "./browser-window";
 
+### Basic frame
+
 Use the browser window to frame product screenshots, app previews, or embedded content with a
 lightweight browser chrome.
 
@@ -17,6 +19,68 @@ export function Example() {
   return (
     <BrowserWindow address="example.com">
       <BrowserWindowContent className="aspect-video" />
+    </BrowserWindow>
+  );
+}
+```
+
+### Linked address
+
+Pass `addressHref` when the address should open the live page in a new tab.
+
+```tsx
+import { BrowserWindow, BrowserWindowContent } from "@/components/ui/browser-window";
+
+export function DocsPreview() {
+  return (
+    <BrowserWindow address="ui.jarv.is/components" addressHref="https://ui.jarv.is/components">
+      <BrowserWindowContent className="aspect-video bg-muted p-6">
+        <div className="grid size-full place-items-center rounded-md bg-background">
+          Components
+        </div>
+      </BrowserWindowContent>
+    </BrowserWindow>
+  );
+}
+```
+
+### Screenshots
+
+Use `BrowserWindowImage` when the framed content is a static screenshot.
+
+```tsx
+import {
+  BrowserWindow,
+  BrowserWindowContent,
+  BrowserWindowImage,
+} from "@/components/ui/browser-window";
+
+export function ScreenshotFrame() {
+  return (
+    <BrowserWindow address="app.example.com/dashboard">
+      <BrowserWindowContent className="aspect-video">
+        <BrowserWindowImage src="/dashboard.png" alt="Dashboard overview" />
+      </BrowserWindowContent>
+    </BrowserWindow>
+  );
+}
+```
+
+### Embedded content
+
+The content area is just a styled container, so you can render live UI inside it.
+
+```tsx
+import { BrowserWindow, BrowserWindowContent } from "@/components/ui/browser-window";
+
+export function EmptyStatePreview() {
+  return (
+    <BrowserWindow address="localhost:3000">
+      <BrowserWindowContent className="p-8">
+        <div className="rounded-lg border border-dashed p-8 text-center">
+          No environments yet.
+        </div>
+      </BrowserWindowContent>
     </BrowserWindow>
   );
 }

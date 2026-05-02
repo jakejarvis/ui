@@ -9,6 +9,8 @@ registryDependencies:
 
 import { CookieConsent } from "./cookie-consent";
 
+### Basic consent
+
 Use controlled or uncontrolled state to connect the consent card to your preference storage.
 
 ```tsx
@@ -16,6 +18,77 @@ import { CookieConsent } from "@/components/ui/cookie-consent";
 
 export function Example() {
   return <CookieConsent onConsentChange={(decision) => console.log(decision)} />;
+}
+```
+
+### Store the decision
+
+Use `onConsentChange` to persist the user decision in your own storage layer.
+
+```tsx
+import { CookieConsent } from "@/components/ui/cookie-consent";
+
+export function ConsentBanner() {
+  return (
+    <CookieConsent
+      learnMoreHref="/privacy"
+      onConsentChange={(decision) => {
+        localStorage.setItem("cookie-consent", decision);
+      }}
+    />
+  );
+}
+```
+
+### Controlled display
+
+Control `open` when the consent state comes from a loader, server response, or settings page.
+
+```tsx
+"use client";
+
+import { useState } from "react";
+
+import {
+  CookieConsent,
+  type CookieConsentDecision,
+} from "@/components/ui/cookie-consent";
+
+function saveCookieDecision(decision: CookieConsentDecision) {
+  localStorage.setItem("cookie-consent", decision);
+}
+
+export function ControlledConsent() {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <CookieConsent
+      open={open}
+      onOpenChange={setOpen}
+      onConsentChange={(decision) => {
+        saveCookieDecision(decision);
+      }}
+    />
+  );
+}
+```
+
+### Custom copy
+
+Customize labels and body copy when the consent message needs to match your product policy.
+
+```tsx
+import { CookieConsent } from "@/components/ui/cookie-consent";
+
+export function AnalyticsConsent() {
+  return (
+    <CookieConsent acceptLabel="Allow analytics" declineLabel="No thanks">
+      We use privacy-friendly analytics to understand which product areas need work.{" "}
+      <a href="/privacy" className="underline underline-offset-2">
+        Read the privacy policy.
+      </a>
+    </CookieConsent>
+  );
 }
 ```
 

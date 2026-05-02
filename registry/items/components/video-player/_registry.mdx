@@ -20,6 +20,8 @@ import {
   VideoPlayerVolumeRange,
 } from "./video-player";
 
+### Basic player
+
 Use the video player wrappers to compose a media-chrome player with your app theme tokens.
 
 ```tsx
@@ -31,6 +33,108 @@ export function Example() {
       <VideoPlayerContent src="/video.webm" />
       <VideoPlayerControlBar />
     </VideoPlayer>
+  );
+}
+```
+
+### Full controls
+
+Compose only the controls your player needs. The wrappers forward props to `media-chrome`.
+
+```tsx
+import {
+  VideoPlayer,
+  VideoPlayerContent,
+  VideoPlayerControlBar,
+  VideoPlayerMuteButton,
+  VideoPlayerPlayButton,
+  VideoPlayerTimeDisplay,
+  VideoPlayerTimeRange,
+  VideoPlayerVolumeRange,
+} from "@/components/ui/video-player";
+
+export function TrainingVideo() {
+  return (
+    <VideoPlayer className="aspect-video overflow-hidden rounded-lg border">
+      <VideoPlayerContent src="/training.webm" preload="metadata" />
+      <VideoPlayerControlBar>
+        <VideoPlayerPlayButton />
+        <VideoPlayerTimeRange />
+        <VideoPlayerTimeDisplay />
+        <VideoPlayerMuteButton />
+        <VideoPlayerVolumeRange />
+      </VideoPlayerControlBar>
+    </VideoPlayer>
+  );
+}
+```
+
+### Captions
+
+Pass a captions track when the media has subtitles or transcripts.
+
+```tsx
+import { VideoPlayer, VideoPlayerContent, VideoPlayerControlBar } from "@/components/ui/video-player";
+
+export function CaptionedVideo() {
+  return (
+    <VideoPlayer className="aspect-video">
+      <VideoPlayerContent
+        src="/launch.webm"
+        captionsSrc="/captions/launch.vtt"
+        captionsLabel="English"
+        captionsSrcLang="en"
+      />
+      <VideoPlayerControlBar />
+    </VideoPlayer>
+  );
+}
+```
+
+### Theme overrides
+
+Override media-chrome CSS variables through `style` for one-off branded players.
+
+```tsx
+import type { CSSProperties } from "react";
+
+import { VideoPlayer, VideoPlayerContent, VideoPlayerControlBar } from "@/components/ui/video-player";
+
+type VideoTheme = CSSProperties & Record<`--${string}`, string>;
+
+const playerTheme = {
+  "--media-primary-color": "white",
+  "--media-secondary-color": "black",
+  "--media-control-hover-background": "rgb(255 255 255 / 0.16)",
+} satisfies VideoTheme;
+
+export function BrandedVideo() {
+  return (
+    <VideoPlayer className="aspect-video overflow-hidden rounded-lg" style={playerTheme}>
+      <VideoPlayerContent src="/demo.webm" />
+      <VideoPlayerControlBar />
+    </VideoPlayer>
+  );
+}
+```
+
+### Seek controls
+
+Add skip controls for long-form content where users need quick navigation.
+
+```tsx
+import {
+  VideoPlayerControlBar,
+  VideoPlayerSeekBackwardButton,
+  VideoPlayerSeekForwardButton,
+} from "@/components/ui/video-player";
+
+export function PlaybackControls() {
+  return (
+    <VideoPlayerControlBar>
+      <VideoPlayerSeekBackwardButton seekOffset={10} />
+      <VideoPlayerSeekForwardButton seekOffset={30} />
+    </VideoPlayerControlBar>
   );
 }
 ```

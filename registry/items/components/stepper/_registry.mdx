@@ -20,6 +20,8 @@ import {
   StepperTrigger,
 } from "./stepper";
 
+### Basic flow
+
 Use the stepper for multi-step forms, onboarding, and guided setup flows.
 
 ```tsx
@@ -31,6 +33,140 @@ export function Example() {
       <StepperNav>
         <StepperItem step={1}>
           <StepperTrigger>Profile</StepperTrigger>
+        </StepperItem>
+      </StepperNav>
+    </Stepper>
+  );
+}
+```
+
+### Step content
+
+Pair `StepperNav` with `StepperPanel` and one `StepperContent` per step.
+
+```tsx
+import {
+  Stepper,
+  StepperContent,
+  StepperItem,
+  StepperNav,
+  StepperPanel,
+  StepperTrigger,
+} from "@/components/ui/stepper";
+
+export function OnboardingStepper() {
+  return (
+    <Stepper defaultValue={1}>
+      <StepperNav>
+        <StepperItem step={1}>
+          <StepperTrigger>Profile</StepperTrigger>
+        </StepperItem>
+        <StepperItem step={2}>
+          <StepperTrigger>Team</StepperTrigger>
+        </StepperItem>
+      </StepperNav>
+      <StepperPanel>
+        <StepperContent value={1}>Profile form</StepperContent>
+        <StepperContent value={2}>Team form</StepperContent>
+      </StepperPanel>
+    </Stepper>
+  );
+}
+```
+
+### Controlled state
+
+Control `value` when the active step is driven by form validation or route state.
+
+```tsx
+"use client";
+
+import { useState } from "react";
+
+import { Stepper, StepperItem, StepperNav, StepperTrigger } from "@/components/ui/stepper";
+
+export function ControlledStepper({ billingEnabled }: { billingEnabled: boolean }) {
+  const [step, setStep] = useState(1);
+
+  return (
+    <Stepper value={step} onValueChange={setStep}>
+      <StepperNav>
+        <StepperItem step={1} completed={step > 1}>
+          <StepperTrigger>Account</StepperTrigger>
+        </StepperItem>
+        <StepperItem step={2} disabled={!billingEnabled}>
+          <StepperTrigger>Billing</StepperTrigger>
+        </StepperItem>
+      </StepperNav>
+    </Stepper>
+  );
+}
+```
+
+### Titles and indicators
+
+Compose indicators, titles, descriptions, and separators for richer progress navigation.
+
+```tsx
+import {
+  Stepper,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from "@/components/ui/stepper";
+
+export function RichStepperNav() {
+  return (
+    <Stepper defaultValue={1}>
+      <StepperNav>
+        <StepperItem step={1} completed>
+          <StepperTrigger>
+            <StepperIndicator>1</StepperIndicator>
+            <span className="flex flex-col items-start gap-1">
+              <StepperTitle>Profile</StepperTitle>
+              <StepperDescription>Owner details</StepperDescription>
+            </span>
+          </StepperTrigger>
+          <StepperSeparator />
+        </StepperItem>
+        <StepperItem step={2}>
+          <StepperTrigger>
+            <StepperIndicator>2</StepperIndicator>
+            <span className="flex flex-col items-start gap-1">
+              <StepperTitle>Review</StepperTitle>
+              <StepperDescription>Final check</StepperDescription>
+            </span>
+          </StepperTrigger>
+        </StepperItem>
+      </StepperNav>
+    </Stepper>
+  );
+}
+```
+
+### Vertical orientation
+
+Use `orientation="vertical"` for narrow sidebars or long setup flows.
+
+```tsx
+import { Stepper, StepperItem, StepperNav, StepperTrigger } from "@/components/ui/stepper";
+
+export function VerticalStepper() {
+  return (
+    <Stepper orientation="vertical" defaultValue={2}>
+      <StepperNav>
+        <StepperItem step={1} completed>
+          <StepperTrigger>Connect</StepperTrigger>
+        </StepperItem>
+        <StepperItem step={2}>
+          <StepperTrigger>Configure</StepperTrigger>
+        </StepperItem>
+        <StepperItem step={3}>
+          <StepperTrigger>Review</StepperTrigger>
         </StepperItem>
       </StepperNav>
     </Stepper>

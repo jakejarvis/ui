@@ -11,6 +11,8 @@ registryDependencies:
 
 import { CopyButton } from "./copy-button";
 
+### Icon button
+
 Use the copy button for command snippets, tokens, URLs, and other short values.
 
 ```tsx
@@ -18,6 +20,70 @@ import { CopyButton } from "@/components/ui/copy-button";
 
 export function Example() {
   return <CopyButton value="npm install" showLabel copyLabel="Copy command" />;
+}
+```
+
+### Labeled button
+
+Show a label when the copy action is one of several visible actions in a toolbar or card.
+
+```tsx
+import { CopyButton } from "@/components/ui/copy-button";
+
+export function CopyInstallCommand() {
+  return (
+    <CopyButton
+      value="bunx --bun shadcn@latest add https://ui.jarv.is/r/copy-button.json"
+      showLabel
+      copyLabel="Copy command"
+    />
+  );
+}
+```
+
+### Dynamic values
+
+Pass a function when the value should be read at click time, such as a generated token.
+
+```tsx
+import { useRef } from "react";
+
+import { CopyButton } from "@/components/ui/copy-button";
+
+export function CopyLatestToken() {
+  const tokenInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="flex items-center gap-2">
+      <input ref={tokenInputRef} defaultValue="jui_live_..." readOnly />
+      <CopyButton value={() => tokenInputRef.current?.value ?? ""} copyLabel="Copy token" />
+    </div>
+  );
+}
+```
+
+### Copy callbacks
+
+Use `onCopied` and `onCopyError` to connect copy events to your app feedback.
+
+```tsx
+import { CopyButton } from "@/components/ui/copy-button";
+
+export function CopyInviteLink({ inviteUrl }: { inviteUrl: string }) {
+  return (
+    <CopyButton
+      value={inviteUrl}
+      showLabel
+      copyLabel="Copy invite"
+      copiedLabel="Copied"
+      onCopied={(value) => {
+        console.log(`Copied ${value}`);
+      }}
+      onCopyError={(error) => {
+        console.error("Could not copy invite link", error);
+      }}
+    />
+  );
 }
 ```
 

@@ -13,5 +13,20 @@ Install any @jarvis-ui item with the command shown on its docs page.
 npx shadcn@latest add https://ui.jarv.is/r/copy-button.json
 ```
 
-Use the package manager selector on item pages to switch between npm, pnpm, yarn, and bun commands.
-The installed files are regular React components you can edit in your app.
+Use the package manager selector on item pages to switch between npm, pnpm, yarn, and bun commands. The installed files are regular React components you can edit in your app.
+
+You can also manually add the registry directly to your [`components.json` file](https://ui.shadcn.com/docs/components-json):
+
+```json
+{
+  "registries": {
+    "@jarvis-ui": "https://ui.jarv.is/r/{name}.json"
+  }
+}
+```
+
+Once configured, you can omit the full URL and refer to the registry simply as `@jarvis-ui` when adding new components:
+
+```sh
+npx shadcn@latest add @jarvis-ui/copy-button
+```

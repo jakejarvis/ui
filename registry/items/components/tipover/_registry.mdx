@@ -15,6 +15,8 @@ files:
 import { Button } from "@/components/ui/button";
 import { Tipover, TipoverContent, TipoverTrigger } from "./tipover";
 
+### Basic hint
+
 Use a `Tipover` instead of a `Tooltip` when the information must be accessible to all users regardless of device type.
 
 ```tsx
@@ -25,6 +27,65 @@ export function Example() {
     <Tipover>
       <TipoverTrigger>What is this?</TipoverTrigger>
       <TipoverContent>Helpful context.</TipoverContent>
+    </Tipover>
+  );
+}
+```
+
+### Button trigger
+
+Use `render` when the trigger should reuse your button component while keeping Base UI trigger
+behavior.
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Tipover, TipoverContent, TipoverTrigger } from "@/components/ui/tipover";
+
+export function HelpButton() {
+  return (
+    <Tipover>
+      <TipoverTrigger render={<Button variant="outline" />}>What is this?</TipoverTrigger>
+      <TipoverContent>Shown as a tooltip on hover devices and a popover on touch.</TipoverContent>
+    </Tipover>
+  );
+}
+```
+
+### Placement
+
+Tune `side`, `align`, and offsets the same way you would with Base UI tooltip or popover
+positioning.
+
+```tsx
+import { Tipover, TipoverContent, TipoverTrigger } from "@/components/ui/tipover";
+
+export function InlineHelp() {
+  return (
+    <Tipover>
+      <TipoverTrigger>DNSSEC</TipoverTrigger>
+      <TipoverContent side="right" align="start" sideOffset={8}>
+        DNSSEC adds cryptographic validation to DNS responses.
+      </TipoverContent>
+    </Tipover>
+  );
+}
+```
+
+### Rich content
+
+Keep content short, but it can contain small structured UI when a hint needs more than one line.
+
+```tsx
+import { Tipover, TipoverContent, TipoverTrigger } from "@/components/ui/tipover";
+
+export function StatusTipover() {
+  return (
+    <Tipover>
+      <TipoverTrigger>Verification paused</TipoverTrigger>
+      <TipoverContent className="max-w-64 flex-col items-start gap-1 text-left">
+        <span className="font-medium">Missing secret</span>
+        <span className="text-background/70">Add `VERCEL_TOKEN` to continue smoke tests.</span>
+      </TipoverContent>
     </Tipover>
   );
 }

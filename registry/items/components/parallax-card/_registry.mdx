@@ -9,6 +9,8 @@ dependencies:
 
 import { ParallaxCard } from "./parallax-card";
 
+### Basic card
+
 Use parallax card to add subtle pointer-driven depth to any card contents.
 
 ```tsx
@@ -23,6 +25,64 @@ export function Example() {
           Add your own content and keep the motion shell reusable.
         </p>
       </div>
+    </ParallaxCard>
+  );
+}
+```
+
+### Tune the motion
+
+Lower the tilt and hover scale for dense product cards, or increase them for expressive marketing
+surfaces.
+
+```tsx
+import { ParallaxCard } from "@/components/ui/parallax-card";
+
+export function ProductMetricCard() {
+  return (
+    <ParallaxCard maxTilt={4} scale={1.01} parallaxShift={3} className="max-w-sm">
+      <div className="p-5">
+        <p className="text-sm text-muted-foreground">Pipeline health</p>
+        <p className="mt-2 text-3xl font-semibold">98.4%</p>
+      </div>
+    </ParallaxCard>
+  );
+}
+```
+
+### Disable motion
+
+Set `disabled` when the same card needs to render in a static context such as a print view,
+thumbnail grid, or automated screenshot.
+
+```tsx
+import { ParallaxCard } from "@/components/ui/parallax-card";
+
+export function StaticPreviewCard() {
+  return (
+    <ParallaxCard disabled glare={false} className="max-w-sm">
+      <div className="p-6">Static preview</div>
+    </ParallaxCard>
+  );
+}
+```
+
+### Custom layers
+
+Use the content and glare class hooks when the card needs tighter art direction.
+
+```tsx
+import { ParallaxCard } from "@/components/ui/parallax-card";
+
+export function ArtworkCard() {
+  return (
+    <ParallaxCard
+      contentClassName="scale-[1.06]"
+      glareClassName="mix-blend-screen"
+      glareMaxOpacity={0.24}
+      className="max-w-sm"
+    >
+      <div className="min-h-64 bg-zinc-950 p-6 text-white">Campaign artwork</div>
     </ParallaxCard>
   );
 }
