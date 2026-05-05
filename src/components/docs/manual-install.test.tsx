@@ -79,6 +79,32 @@ describe("manual installation", () => {
     expect(html).not.toContain("registry-source/fixture-data.ts");
   });
 
+  test("renders target placeholders as default shadcn directories", () => {
+    const html = renderToStaticMarkup(
+      <ManualInstallation
+        item={{
+          sourceFiles: [
+            {
+              path: "ui/fixture-widget.tsx",
+              target: "@ui/fixture-widget.tsx",
+              source: "export function FixtureWidget() { return null }",
+            },
+            {
+              path: "registry-source/fixture-data.ts",
+              target: "@lib/fixture-data.ts",
+              source: "export const fixtureData = []",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(html).toContain("components/ui/fixture-widget.tsx");
+    expect(html).toContain("lib/fixture-data.ts");
+    expect(html).not.toContain("@ui/fixture-widget.tsx");
+    expect(html).not.toContain("@lib/fixture-data.ts");
+  });
+
   test("preserves the metadata-only fallback and final import reminder", () => {
     const html = renderToStaticMarkup(
       <ManualInstallation

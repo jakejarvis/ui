@@ -10,6 +10,14 @@ const shadcnDefaultTargetSegmentsByFileType: Partial<Record<RegistryFileType, st
   "registry:ui": "ui",
 };
 
+const shadcnTargetPlaceholdersByFileType: Partial<Record<RegistryFileType, string>> = {
+  "registry:block": "@components",
+  "registry:component": "@components",
+  "registry:hook": "@hooks",
+  "registry:lib": "@lib",
+  "registry:ui": "@ui",
+};
+
 export function getFileName(path: string): string {
   return path.replace(/\\/gu, "/").split("/").at(-1) ?? path;
 }
@@ -66,6 +74,30 @@ export function getRegistryFilePublicPath(file: {
   return getDefaultRegistryFilePublicPath(getFileName(path), file.type);
 }
 
+export function getRegistryFileTarget(file: {
+  path: string;
+  type: RegistryFileType;
+  target?: string;
+}): string | undefined {
+  if (file.target?.trim()) {
+    return normalizeRegistryTargetPath(file.target);
+  }
+
+  const path = normalizeRegistryRelativePath(file.path);
+  const targetSegment = getShadcnDefaultTargetSegment(file.type);
+  const targetPlaceholder = getShadcnTargetPlaceholder(file.type);
+
+  if (!targetSegment || !targetPlaceholder || path === "" || isInvalidRegistryRelativePath(path)) {
+    return undefined;
+  }
+
+  const targetPath = path.startsWith(`${targetSegment}/`)
+    ? path.slice(targetSegment.length + 1)
+    : getFileName(path);
+
+  return `${targetPlaceholder}/${targetPath}`;
+}
+
 export function stripCodeExtension(path: string): string {
   return path.replace(/\.[cm]?[jt]sx?$/u, "");
 }
@@ -74,6 +106,10 @@ export function normalizeRegistryRelativePath(path: string): string {
   const posixPath = path.replace(/\\/gu, "/");
 
   return isInvalidRegistryRelativePath(posixPath) ? posixPath : normalizePath(posixPath.split("/"));
+}
+
+export function normalizeRegistryTargetPath(path: string): string {
+  return path.trim().replace(/\\/gu, "/");
 }
 
 export function isInvalidRegistryRelativePath(path: string): boolean {
@@ -86,4 +122,8 @@ export function isInvalidRegistryRelativePath(path: string): boolean {
 
 function getShadcnDefaultTargetSegment(type: RegistryFileType): string | undefined {
   return shadcnDefaultTargetSegmentsByFileType[type];
+}
+
+function getShadcnTargetPlaceholder(type: RegistryFileType): string | undefined {
+  return shadcnTargetPlaceholdersByFileType[type];
 }

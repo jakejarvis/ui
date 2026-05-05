@@ -198,7 +198,7 @@ function parseRegistryScaffoldInput(rawArgs: string[]): RegistryScaffoldInput {
 
   if (hasTarget && !supportsTargetOption(type)) {
     throw new Error(
-      "--target is only supported for registry:page, registry:file, and registry:item items.",
+      "--target is only supported for source-backed registry items and targeted registry:item items.",
     );
   }
 
@@ -298,7 +298,16 @@ function parseRegistryScaffoldFileExtension(value: string): RegistryScaffoldFile
 }
 
 function supportsTargetOption(type: RegistryScaffoldItemType): boolean {
-  return type === "registry:page" || type === "registry:file" || type === "registry:item";
+  return (
+    type === "registry:block" ||
+    type === "registry:component" ||
+    type === "registry:hook" ||
+    type === "registry:lib" ||
+    type === "registry:page" ||
+    type === "registry:file" ||
+    type === "registry:ui" ||
+    type === "registry:item"
+  );
 }
 
 function supportsFileExtensionOption(type: RegistryScaffoldItemType, hasTarget: boolean): boolean {
@@ -318,7 +327,7 @@ Options:
   --title <title>               Public title. Defaults from name.
   --description <description>   Public description.
   --target <path>               Install target. Required for registry:page and registry:file.
-                                Optional for registry:item universal files.
+                                Optional for source-backed items and targeted registry:item files.
   --file-extension <ext>        File extension for registry:file and targeted registry:item. Defaults to ts.
   --font-family <family>        Font family for registry:font.
   --font-import <name>          Google font import name for registry:font.

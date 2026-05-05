@@ -220,6 +220,31 @@ describe("registry catalog", () => {
     expect(displaySource).toContain(`import "./example.css";`);
   });
 
+  test("rewrites target placeholder imports to configured aliases for display", () => {
+    const item = {
+      sourceFiles: [
+        {
+          path: "prompt-input.tsx",
+          sourcePath: "registry/items/components/prompt-input/prompt-input.tsx",
+          target: "@ui/ai/prompt-input.tsx",
+          type: "registry:ui",
+          source: "",
+        },
+      ],
+    } as const;
+    const displaySource = getRegistryDisplaySource(
+      item,
+      {
+        path: "registry/items/components/prompt-input/_registry.mdx",
+        source: `import { PromptInput } from "./prompt-input";`,
+      },
+      { registryItems: [] },
+    );
+
+    expect(displaySource).toContain(`from "@/components/ui/ai/prompt-input"`);
+    expect(displaySource).not.toContain(`from "@ui/ai/prompt-input"`);
+  });
+
   test("keeps registry authoring metadata out of preview display source", () => {
     for (const item of registryItems) {
       const itemWithSources = getRegistryItemWithSources(item);

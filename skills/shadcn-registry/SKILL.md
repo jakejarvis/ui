@@ -17,7 +17,7 @@ Use this skill for installable registry items across all public shadcn registry 
 bun --bun ./scripts/new.ts --type registry:ui --name example-card --description "A compact card component."
 ```
 
-Use `--target` for `registry:page` and `registry:file`; use `--file-extension` for non-`ts` file items; provide font flags for `registry:font` in noninteractive mode.
+Use `--target` for `registry:page`, `registry:file`, and custom alias installs such as `@ui/ai/prompt-input.tsx`; use `--file-extension` for non-`ts` file items; provide font flags for `registry:font` in noninteractive mode.
 
 ## Type Map
 
@@ -57,7 +57,7 @@ Dependency fields:
 
 - `registryDependencies`: shadcn primitive names such as `button`, `card`, `badge`, `dialog`, or `input`.
 - `localRegistryDependencies`: other local registry item names.
-- `files`: required for hooks, libs, blocks, pages, target paths, and multi-file items. Use source paths relative to the item `_registry.mdx` file, for example `path: stats-panel.tsx`; the catalog emits shadcn-facing JSON paths automatically. One-file `registry:ui` items may omit it only when the published source is `<item-name>.tsx` in the item folder. Metadata-only style, theme, font, base, and universal items may omit it.
+- `files`: required for hooks, libs, blocks, pages, target paths, and multi-file items. Use source paths relative to the item `_registry.mdx` file, for example `path: stats-panel.tsx`; the catalog emits shadcn-facing `files[].target` placeholders automatically for alias-backed item types. One-file `registry:ui` items may omit it only when the published source is `<item-name>.tsx` in the item folder. Metadata-only style, theme, font, base, and universal items may omit it.
 
 Do not add `registry/items/**` prefixes or `sourcePath` frontmatter. The catalog derives the source path from the item folder and authored `files[].path`.
 

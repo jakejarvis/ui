@@ -10,6 +10,7 @@ import {
   getDefaultRegistryFilePublicPath,
   getFileName,
   getParentPath,
+  getRegistryFileTarget,
   getRegistryFilePublicPath,
   isInvalidRegistryRelativePath,
   normalizeRegistryRelativePath,
@@ -134,9 +135,12 @@ function getDefaultRegistryFile(
   itemRoot: string,
   item: Pick<RegistryItemAuthoringDefinition, "name"> & { type: "registry:ui" },
 ): RegistrySourceFileDefinition {
+  const path = getDefaultRegistryFilePublicPath(`${item.name}.tsx`, item.type);
+
   return {
-    path: getDefaultRegistryFilePublicPath(`${item.name}.tsx`, item.type),
+    path,
     sourcePath: `${itemRoot}/${item.name}.tsx`,
+    target: getRegistryFileTarget({ path, type: item.type }),
     type: item.type,
   };
 }
@@ -145,10 +149,14 @@ function normalizeRegistrySourceFileDefinition(
   itemRoot: string,
   file: RegistryFileAuthoringDefinition,
 ): RegistrySourceFileDefinition {
+  const path = getRegistryFilePublicPath(file);
+  const target = getRegistryFileTarget({ ...file, path });
+
   return {
     ...file,
-    path: getRegistryFilePublicPath(file),
+    path,
     sourcePath: getRegistrySourcePath(itemRoot, file),
+    ...(target ? { target } : {}),
   };
 }
 

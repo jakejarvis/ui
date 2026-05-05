@@ -46,6 +46,20 @@ describe("registry scaffold", () => {
     expect(getRegistryMdx(plan)).not.toContain("files:");
   });
 
+  test("includes explicit files for registry ui items with target placeholders", () => {
+    const plan = createRegistryScaffoldPlan(
+      getScaffoldInput({ type: "registry:ui", target: "@ui/ai/example-item.tsx" }),
+    );
+
+    expect(getRegistryMdx(plan)).toContain("files:");
+    expect(getRegistryMdx(plan)).toContain("path: example-item.tsx");
+    expect(getRegistryMdx(plan)).toContain("type: registry:ui");
+    expect(getRegistryMdx(plan)).toContain(`target: "@ui/ai/example-item.tsx"`);
+    expect(getRegistryMdx(plan)).toContain(
+      `import { ExampleItem } from "@/components/ui/ai/example-item";`,
+    );
+  });
+
   test("includes explicit files for item types that need them", () => {
     for (const type of [
       "registry:block",
@@ -106,7 +120,7 @@ describe("registry scaffold", () => {
     expect(getRegistryMdx(plan)).toContain("type: registry:file");
     expect(getRegistryMdx(plan)).toContain("path: example-item.mdc");
     expect(getRegistryMdx(plan)).not.toContain("sourcePath:");
-    expect(getRegistryMdx(plan)).toContain("target: ~/.cursor/rules/example-item.mdc");
+    expect(getRegistryMdx(plan)).toContain(`target: "~/.cursor/rules/example-item.mdc"`);
   });
 
   test("requires font metadata for registry font items", () => {
@@ -164,15 +178,18 @@ describe("registry scaffold", () => {
 
 function getScaffoldInput(input: Partial<RegistryScaffoldInput> = {}): RegistryScaffoldInput {
   const type = input.type ?? "registry:ui";
+  let target = input.target;
+
+  if (target === undefined && (type === "registry:page" || type === "registry:file")) {
+    target = "app/example/page.tsx";
+  }
 
   return {
     type,
     name: input.name ?? "example-item",
     title: input.title ?? "Example Item",
     description: input.description ?? "A generated registry item.",
-    ...(type === "registry:page" || type === "registry:file"
-      ? { target: input.target ?? "app/example/page.tsx" }
-      : {}),
+    ...(target ? { target } : {}),
     ...(input.fileExtension ? { fileExtension: input.fileExtension } : {}),
     ...(type === "registry:font"
       ? {
@@ -183,7 +200,6 @@ function getScaffoldInput(input: Partial<RegistryScaffoldInput> = {}): RegistryS
           },
         }
       : {}),
-    ...(type === "registry:item" && input.target ? { target: input.target } : {}),
   };
 }
 

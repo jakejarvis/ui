@@ -31,7 +31,7 @@ Use **Vite+**: `vp install`, `vp dev`, `vp build`, `vp test`
 
 - Treat short prompts like "add a button component to the registry" as implementation requests.
 - For registry item authoring or adaptation, use the installable `shadcn-registry` [SKILL.md](skills/shadcn-registry/SKILL.md) when available.
-- For new registry items, scaffold the starter files non-interactively with `bun --bun ./scripts/new.ts --type <type> --name <kebab-name> --description "<description>"`; add `--target` for `registry:page` and `registry:file`, `--file-extension` for non-`ts` file items, and font flags for `registry:font`.
+- For new registry items, scaffold the starter files non-interactively with `bun --bun ./scripts/new.ts --type <type> --name <kebab-name> --description "<description>"`; add `--target` for `registry:page`, `registry:file`, and custom alias installs like `@ui/ai/<file>.tsx`, `--file-extension` for non-`ts` file items, and font flags for `registry:font`.
 - Put published registry source under `registry/items/**`, never under `src/components/ui`.
 - `src/components/ui` is for the docs app shell shadcn components only.
 - Put public documentation pages directly under `registry/docs/`; they render at `/docs`.

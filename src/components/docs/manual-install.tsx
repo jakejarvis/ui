@@ -34,6 +34,13 @@ type ManualInstallStepProps = {
   title: string;
 };
 
+const targetPlaceholderDisplayPrefixes = [
+  ["@ui/", "components/ui/"],
+  ["@components/", "components/"],
+  ["@hooks/", "hooks/"],
+  ["@lib/", "lib/"],
+] as const;
+
 export function ManualInstallation({ item }: ManualInstallationProps) {
   let stepNumber = 1;
   const hasPackageDependencies =
@@ -126,5 +133,13 @@ function SourceFileHeader({ path }: { path: string }) {
 }
 
 function getManualInstallFilePath(file: Pick<ManualInstallSourceFile, "path" | "target">): string {
-  return file.target ?? file.path;
+  const path = file.target ?? file.path;
+
+  for (const [prefix, replacement] of targetPlaceholderDisplayPrefixes) {
+    if (path.startsWith(prefix)) {
+      return `${replacement}${path.slice(prefix.length)}`;
+    }
+  }
+
+  return path;
 }

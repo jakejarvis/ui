@@ -40,6 +40,7 @@ type: registry:ui
     expect(items[0]?.files).toEqual([
       {
         path: "ui/example-ui.tsx",
+        target: "@ui/example-ui.tsx",
         type: "registry:ui",
       },
     ]);
@@ -60,6 +61,7 @@ files:
     expect(items[0]?.files).toEqual([
       {
         path: "hooks/use-example.ts",
+        target: "@hooks/use-example.ts",
         type: "registry:hook",
       },
     ]);
@@ -67,6 +69,7 @@ files:
       {
         path: "hooks/use-example.ts",
         sourcePath: "registry/items/hooks/use-example/use-example.ts",
+        target: "@hooks/use-example.ts",
         type: "registry:hook",
       },
     ]);
@@ -87,6 +90,7 @@ files:
     expect(items[0]?.files).toEqual([
       {
         path: "hooks/use-example.ts",
+        target: "@hooks/use-example.ts",
         type: "registry:hook",
       },
     ]);
@@ -133,6 +137,7 @@ files:
     expect(items[0]?.files).toEqual([
       {
         path: "ui/fixture-card.tsx",
+        target: "@ui/fixture-card.tsx",
         type: "registry:ui",
       },
     ]);
@@ -171,5 +176,30 @@ files:
         type: "registry:ui",
       },
     ]);
+  });
+
+  test("preserves authored paths when explicit target placeholders control installation", () => {
+    const items = createRegistryCatalogItems({
+      "registry/items/components/prompt-input/_registry.mdx": `---
+name: prompt-input
+type: registry:ui
+files:
+  - path: prompt-input.tsx
+    type: registry:ui
+    target: "@ui/ai/prompt-input.tsx"
+---
+`,
+    });
+
+    expect(items[0]?.files).toEqual([
+      {
+        path: "prompt-input.tsx",
+        type: "registry:ui",
+        target: "@ui/ai/prompt-input.tsx",
+      },
+    ]);
+    expect(items[0]?.sourceFiles[0]?.sourcePath).toBe(
+      "registry/items/components/prompt-input/prompt-input.tsx",
+    );
   });
 });

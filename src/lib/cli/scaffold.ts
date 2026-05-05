@@ -3,6 +3,7 @@ import {
   publicRegistryItemTypes,
   type RegistryItemType,
 } from "../registry/item-types";
+import { stripCodeExtension } from "../registry/paths";
 
 export type RegistryScaffoldItemType = RegistryItemType;
 
@@ -45,6 +46,16 @@ export type RegistryScaffoldFontInput = {
 
 const kebabCasePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const fileExtensionPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/u;
+const registryScaffoldTargetImportPrefixes = [
+  ["@ui/", "@/components/ui"],
+  ["@components/", "@/components"],
+  ["@hooks/", "@/hooks"],
+  ["@lib/", "@/lib"],
+  ["components/ui/", "@/components/ui"],
+  ["components/", "@/components"],
+  ["hooks/", "@/hooks"],
+  ["lib/", "@/lib"],
+] as const;
 
 export const registryScaffoldItemTypes = publicRegistryItemTypes;
 
@@ -292,7 +303,7 @@ function getRegistryFrontmatterFiles(
   sourcePath: string | undefined,
   itemRoot: string,
 ): string[] {
-  if (!sourcePath || input.type === "registry:ui") {
+  if (!sourcePath || (input.type === "registry:ui" && !input.target)) {
     return [];
   }
 
@@ -306,7 +317,7 @@ function getRegistryFrontmatterFiles(
   ];
 
   if (input.target) {
-    fileLines.push(`    target: ${input.target.trim()}`);
+    fileLines.push(`    target: ${toYamlString(input.target)}`);
   }
 
   return fileLines;
@@ -349,14 +360,20 @@ function renderRegistryUsageSnippet(input: RegistryScaffoldInput): string {
     case "registry:ui":
       return [
         "```tsx",
-        `import { ${getRegistryScaffoldComponentName(input.name)} } from "@/components/ui/${input.name}";`,
+        `import { ${getRegistryScaffoldComponentName(input.name)} } from "${getRegistryScaffoldUsageImportPath(
+          input,
+          `@/components/ui/${input.name}`,
+        )}";`,
         "```",
       ].join("\n");
     case "registry:component":
     case "registry:block":
       return [
         "```tsx",
-        `import { ${getRegistryScaffoldComponentName(input.name)} } from "@/components/${input.name}";`,
+        `import { ${getRegistryScaffoldComponentName(input.name)} } from "${getRegistryScaffoldUsageImportPath(
+          input,
+          `@/components/${input.name}`,
+        )}";`,
         "```",
       ].join("\n");
     case "registry:page":
@@ -370,18 +387,46 @@ function renderRegistryUsageSnippet(input: RegistryScaffoldInput): string {
     case "registry:hook":
       return [
         "```tsx",
-        `import { ${getRegistryScaffoldHookName(input.name)} } from "@/hooks/${input.name}";`,
+        `import { ${getRegistryScaffoldHookName(input.name)} } from "${getRegistryScaffoldUsageImportPath(
+          input,
+          `@/hooks/${input.name}`,
+        )}";`,
         "```",
       ].join("\n");
     case "registry:lib":
       return [
         "```ts",
-        `import { ${getRegistryScaffoldHelperName(input.name)} } from "@/lib/${input.name}";`,
+        `import { ${getRegistryScaffoldHelperName(input.name)} } from "${getRegistryScaffoldUsageImportPath(
+          input,
+          `@/lib/${input.name}`,
+        )}";`,
         "```",
       ].join("\n");
     default:
       return assertNever(input.type);
   }
+}
+
+function getRegistryScaffoldUsageImportPath(
+  input: Pick<RegistryScaffoldInput, "target">,
+  fallback: string,
+): string {
+  if (!input.target?.trim()) {
+    return fallback;
+  }
+
+  const normalizedTarget = input.target
+    .trim()
+    .replace(/\\/gu, "/")
+    .replace(/^\.?\//u, "");
+
+  for (const [prefix, alias] of registryScaffoldTargetImportPrefixes) {
+    if (normalizedTarget.startsWith(prefix)) {
+      return stripCodeExtension(joinImportPath(alias, normalizedTarget.slice(prefix.length)));
+    }
+  }
+
+  return fallback;
 }
 
 function renderRegistryPreview(input: RegistryScaffoldInput): string {
@@ -572,6 +617,10 @@ function getRegistryScaffoldHelperName(name: string): string {
 
 function normalizePath(path: string): string {
   return path.replace(/\\/gu, "/").replace(/^\/+|\/+$/gu, "");
+}
+
+function joinImportPath(basePath: string, childPath: string): string {
+  return `${basePath.replace(/\/$/u, "")}/${childPath.replace(/^\/+/u, "")}`;
 }
 
 function validateRegistryScaffoldFont(font: RegistryScaffoldInput["font"]): void {

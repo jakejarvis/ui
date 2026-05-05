@@ -18,12 +18,13 @@ const { fixtureRegistryItems, fixtureRegistrySourceByPath } = vi.hoisted(() => {
       title: "Alpha Card",
       description: "A compact card component.",
       type: "registry:ui",
-      files: [{ path: "ui/alpha-card.tsx", type: "registry:ui" }],
+      files: [{ path: "ui/alpha-card.tsx", target: "@ui/alpha-card.tsx", type: "registry:ui" }],
       sourceFiles: [
         {
           path: "ui/alpha-card.tsx",
           sourcePath: "registry/items/components/alpha-card/alpha-card.tsx",
           fileName: "alpha-card.tsx",
+          target: "@ui/alpha-card.tsx",
           type: "registry:ui",
         },
       ],
@@ -42,20 +43,26 @@ const { fixtureRegistryItems, fixtureRegistrySourceByPath } = vi.hoisted(() => {
       description: "A dashboard metrics block.",
       type: "registry:block",
       files: [
-        { path: "components/metrics-panel.tsx", type: "registry:component" },
-        { path: "lib/metrics-data.ts", type: "registry:lib" },
+        {
+          path: "components/metrics-panel.tsx",
+          target: "@components/metrics-panel.tsx",
+          type: "registry:component",
+        },
+        { path: "lib/metrics-data.ts", target: "@lib/metrics-data.ts", type: "registry:lib" },
       ],
       sourceFiles: [
         {
           path: "components/metrics-panel.tsx",
           sourcePath: "registry/items/blocks/metrics-panel/metrics-panel.tsx",
           fileName: "metrics-panel.tsx",
+          target: "@components/metrics-panel.tsx",
           type: "registry:component",
         },
         {
           path: "lib/metrics-data.ts",
           sourcePath: "registry/items/blocks/metrics-panel/metrics-data.ts",
           fileName: "metrics-data.ts",
+          target: "@lib/metrics-data.ts",
           type: "registry:lib",
         },
       ],
@@ -73,12 +80,19 @@ const { fixtureRegistryItems, fixtureRegistrySourceByPath } = vi.hoisted(() => {
       title: "useAlphaState",
       description: "A small state hook.",
       type: "registry:hook",
-      files: [{ path: "hooks/use-alpha-state.ts", type: "registry:hook" }],
+      files: [
+        {
+          path: "hooks/use-alpha-state.ts",
+          target: "@hooks/use-alpha-state.ts",
+          type: "registry:hook",
+        },
+      ],
       sourceFiles: [
         {
           path: "hooks/use-alpha-state.ts",
           sourcePath: "registry/items/hooks/use-alpha-state/use-alpha-state.ts",
           fileName: "use-alpha-state.ts",
+          target: "@hooks/use-alpha-state.ts",
           type: "registry:hook",
         },
       ],
@@ -176,11 +190,17 @@ describe("registry JSON route responses", () => {
     const alphaStateHook = await readJson(getRegistryItemJsonResponse("use-alpha-state"));
 
     expect(getFilePaths(alphaCard)).toEqual(["ui/alpha-card.tsx"]);
+    expect(getFileTargets(alphaCard)).toEqual(["@ui/alpha-card.tsx"]);
     expect(getFilePaths(metricsPanel)).toEqual([
       "components/metrics-panel.tsx",
       "lib/metrics-data.ts",
     ]);
+    expect(getFileTargets(metricsPanel)).toEqual([
+      "@components/metrics-panel.tsx",
+      "@lib/metrics-data.ts",
+    ]);
     expect(getFilePaths(alphaStateHook)).toEqual(["hooks/use-alpha-state.ts"]);
+    expect(getFileTargets(alphaStateHook)).toEqual(["@hooks/use-alpha-state.ts"]);
   });
 
   test("returns JSON 404 responses for unknown items", async () => {
@@ -301,6 +321,20 @@ function getFilePaths(item: unknown): string[] {
     }
 
     return file.path;
+  });
+}
+
+function getFileTargets(item: unknown): string[] {
+  if (!isRecord(item) || !Array.isArray(item.files)) {
+    throw new Error("Expected registry item JSON.");
+  }
+
+  return item.files.map((file) => {
+    if (!isRecord(file) || typeof file.target !== "string") {
+      throw new Error("Expected registry item file target.");
+    }
+
+    return file.target;
   });
 }
 

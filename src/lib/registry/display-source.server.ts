@@ -25,6 +25,10 @@ type RegistryDisplaySourceOptions = {
 };
 
 const targetAliasPrefixes = [
+  ["@ui/", componentsConfig.aliases.ui],
+  ["@components/", componentsConfig.aliases.components],
+  ["@hooks/", componentsConfig.aliases.hooks],
+  ["@lib/", componentsConfig.aliases.lib],
   ["components/ui/", componentsConfig.aliases.ui],
   ["components/", componentsConfig.aliases.components],
   ["hooks/", componentsConfig.aliases.hooks],

@@ -109,6 +109,21 @@ const config = defineConfig({
     globals: true,
   },
   clearScreen: false,
+  build: {
+    rolldownOptions: {
+      output: {
+        manualChunks: (id) => {
+          // The RSC browser decoder imports React DOM during module initialization.
+          // Keep it out of the app entry chunk to avoid a production startup cycle.
+          if (id.includes("/node_modules/react-dom/")) {
+            return "react-dom";
+          }
+
+          return undefined;
+        },
+      },
+    },
+  },
   server: {
     watch: {
       ignored: [
