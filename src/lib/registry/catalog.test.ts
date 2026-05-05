@@ -6,6 +6,7 @@ import {
   registryMetadataItems,
   registryItems,
 } from "./catalog";
+import { createRegistryCatalogItems, hasRegistryPreviewExport } from "./catalog-builder";
 import { getRegistryDisplaySource } from "./display-source.server";
 import {
   getRegistryIndexJson,
@@ -112,6 +113,37 @@ describe("registry catalog", () => {
     }
   });
 
+  test("only enables previews when the preview file exports named Preview", () => {
+    const [item] = createRegistryCatalogItems(
+      {
+        "registry/items/components/fixture-card/_registry.mdx": getRegistryMdxFixture(),
+      },
+      {
+        "registry/items/components/fixture-card/_preview.tsx":
+          "export function FixturePreview() { return null; }",
+      },
+    );
+
+    expect(item?.hasPreview).toBe(false);
+    expect(item?.previewSourceFile.source).toBe("");
+  });
+
+  test("detects runtime named Preview exports", () => {
+    expect(hasRegistryPreviewExport("export function Preview() { return null; }")).toBe(true);
+    expect(hasRegistryPreviewExport("export const Preview = () => null;")).toBe(true);
+    expect(
+      hasRegistryPreviewExport(
+        "const FixturePreview = () => null; export { FixturePreview as Preview };",
+      ),
+    ).toBe(true);
+    expect(hasRegistryPreviewExport("// export function Preview() { return null; }")).toBe(false);
+    expect(hasRegistryPreviewExport(`const source = "export function Preview() {}";`)).toBe(false);
+    expect(hasRegistryPreviewExport("export default function Preview() { return null; }")).toBe(
+      false,
+    );
+    expect(hasRegistryPreviewExport("export type Preview = () => null;")).toBe(false);
+  });
+
   test("does not publish registry authoring files", () => {
     for (const item of registryItems) {
       expect(item.files.some((file) => file.path.split("/").at(-1)?.startsWith("_"))).toBe(false);
@@ -139,7 +171,8 @@ describe("registry catalog", () => {
 
   test("loads metadata without evaluating client-only preview imports", () => {
     for (const item of registryItems) {
-      expect(item.previewSourceFile.path).toMatch(/\/_registry\.mdx$/u);
+      expect(item.registryMdxFilePath).toMatch(/\/_registry\.mdx$/u);
+      expect(item.previewSourceFile.path).toMatch(/\/_preview\.tsx$/u);
     }
 
     for (const item of registryItems.filter((registryItem) => registryItem.hasPreview)) {
@@ -178,7 +211,7 @@ describe("registry catalog", () => {
     const displaySource = getRegistryDisplaySource(
       item,
       {
-        path: "registry/items/components/alpha-card/_registry.mdx",
+        path: "registry/items/components/alpha-card/_preview.tsx",
         source: `import { AlphaCard } from "./alpha-card";`,
       },
       { registryItems: [] },
@@ -186,6 +219,75 @@ describe("registry catalog", () => {
 
     expect(displaySource).toContain(`from "@/components/ui/alpha-card"`);
     expect(displaySource).not.toContain(`from "./alpha-card"`);
+  });
+
+  test("strips use client from preview display source", () => {
+    const item = {
+      sourceFiles: [
+        {
+          path: "ui/alpha-card.tsx",
+          sourcePath: "registry/items/components/alpha-card/alpha-card.tsx",
+          type: "registry:ui",
+          source: "",
+        },
+      ],
+    } as const;
+    const displaySource = getRegistryDisplaySource(item, {
+      path: "registry/items/components/alpha-card/_preview.tsx",
+      source: `"use client";
+
+import { AlphaCard } from "./alpha-card";
+
+export function Preview() {
+  return <AlphaCard />;
+}`,
+    });
+
+    expect(displaySource).not.toContain(`"use client"`);
+    expect(displaySource.startsWith(`import { AlphaCard }`)).toBe(true);
+    expect(displaySource).toContain(`from "@/components/ui/alpha-card"`);
+  });
+
+  test("strips tooling comments and boundary newlines from preview display source", () => {
+    const item = {
+      sourceFiles: [
+        {
+          path: "ui/alpha-card.tsx",
+          sourcePath: "registry/items/components/alpha-card/alpha-card.tsx",
+          type: "registry:ui",
+          source: "",
+        },
+      ],
+    } as const;
+    const displaySource = getRegistryDisplaySource(item, {
+      path: "registry/items/components/alpha-card/_preview.tsx",
+      source: `
+/* eslint-disable react/no-array-index-key */
+"use client";
+
+// prettier-ignore
+import { AlphaCard } from "./alpha-card";
+
+const label = "eslint-disable is plain text";
+// biome-ignore lint/suspicious/noExplicitAny: demo code
+const value: any = label;
+/* oxlint-disable-next-line no-unused-vars */
+export function Preview() {
+  return <AlphaCard label={value} />;
+}
+
+`,
+    });
+
+    expect(displaySource).not.toContain(`"use client"`);
+    expect(displaySource).not.toContain("eslint-disable react");
+    expect(displaySource).not.toContain("prettier-ignore");
+    expect(displaySource).not.toContain("biome-ignore");
+    expect(displaySource).not.toContain("oxlint-disable");
+    expect(displaySource).toContain(`const label = "eslint-disable is plain text";`);
+    expect(displaySource).toContain(`from "@/components/ui/alpha-card"`);
+    expect(displaySource.startsWith(`import { AlphaCard }`)).toBe(true);
+    expect(displaySource.endsWith("}")).toBe(true);
   });
 
   test("rewrites relative imports between published source files for display", () => {
@@ -208,7 +310,7 @@ describe("registry catalog", () => {
     const displaySource = getRegistryDisplaySource(
       item,
       {
-        path: "registry/items/components/example/_registry.mdx",
+        path: "registry/items/components/example/_preview.tsx",
         source: [`import { useExample } from "./use-example";`, `import "./example.css";`].join(
           "\n",
         ),
@@ -235,7 +337,7 @@ describe("registry catalog", () => {
     const displaySource = getRegistryDisplaySource(
       item,
       {
-        path: "registry/items/components/prompt-input/_registry.mdx",
+        path: "registry/items/components/prompt-input/_preview.tsx",
         source: `import { PromptInput } from "./prompt-input";`,
       },
       { registryItems: [] },
@@ -253,7 +355,7 @@ describe("registry catalog", () => {
         continue;
       }
 
-      expect(itemWithSources.previewSourceFile.path.endsWith("_registry.mdx")).toBe(true);
+      expect(itemWithSources.previewSourceFile.path.endsWith("_preview.tsx")).toBe(true);
       expect(itemWithSources.previewSourceFile.source).toContain("export function Preview");
       expect(itemWithSources.previewSourceFile.source).not.toContain("registryItem");
       expect(itemWithSources.previewSourceFile.source).not.toContain("---");
@@ -273,6 +375,18 @@ function compareRegistryItemNames(
     registryItemCollator.compare(a.title ?? a.name, b.title ?? b.name) ||
     registryItemCollator.compare(a.name, b.name)
   );
+}
+
+function getRegistryMdxFixture(): string {
+  return `---
+name: fixture-card
+type: registry:ui
+title: Fixture Card
+description: A test card.
+---
+
+Use this card in examples.
+`;
 }
 
 function toRegistryFileDefinition(file: {

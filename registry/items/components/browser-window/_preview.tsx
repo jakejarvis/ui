@@ -1,0 +1,23 @@
+"use client";
+
+import { BrowserWindow, BrowserWindowContent } from "./browser-window";
+
+export function Preview() {
+  return (
+    <BrowserWindow
+      address="ui.shadcn.com"
+      addressHref="https://ui.shadcn.com"
+      className="w-full max-w-2xl"
+    >
+      <BrowserWindowContent className="aspect-video bg-muted p-6">
+        <div className="grid size-full place-items-center rounded-md border border-dashed bg-background">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <div className="h-2 w-28 rounded-full bg-primary/70" />
+            <div className="h-2 w-44 rounded-full bg-muted-foreground/30" />
+            <div className="h-2 w-36 rounded-full bg-muted-foreground/20" />
+          </div>
+        </div>
+      </BrowserWindowContent>
+    </BrowserWindow>
+  );
+}

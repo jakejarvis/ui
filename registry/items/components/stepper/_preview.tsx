@@ -1,0 +1,69 @@
+"use client";
+
+import {
+  Stepper,
+  StepperContent,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperPanel,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from "./stepper";
+
+export function Preview() {
+  return (
+    <Stepper defaultValue={2} className="flex w-full max-w-2xl flex-col gap-6">
+      <StepperNav>
+        <StepperItem step={1} completed>
+          <StepperTrigger>
+            <StepperIndicator>1</StepperIndicator>
+            <span className="flex flex-col items-start gap-1">
+              <StepperTitle>Profile</StepperTitle>
+              <StepperDescription>Owner details</StepperDescription>
+            </span>
+          </StepperTrigger>
+          <StepperSeparator />
+        </StepperItem>
+        <StepperItem step={2}>
+          <StepperTrigger>
+            <StepperIndicator>2</StepperIndicator>
+            <span className="flex flex-col items-start gap-1">
+              <StepperTitle>Domains</StepperTitle>
+              <StepperDescription>Portfolio setup</StepperDescription>
+            </span>
+          </StepperTrigger>
+          <StepperSeparator />
+        </StepperItem>
+        <StepperItem step={3}>
+          <StepperTrigger>
+            <StepperIndicator>3</StepperIndicator>
+            <span className="flex flex-col items-start gap-1">
+              <StepperTitle>Review</StepperTitle>
+              <StepperDescription>Final check</StepperDescription>
+            </span>
+          </StepperTrigger>
+        </StepperItem>
+      </StepperNav>
+      <StepperPanel className="rounded-lg border bg-card p-4 text-card-foreground">
+        <StepperContent value={1}>
+          <p className="text-sm text-muted-foreground">
+            Add the account owner and billing contact.
+          </p>
+        </StepperContent>
+        <StepperContent value={2}>
+          <p className="text-sm text-muted-foreground">
+            Choose the domains that should share this renewal workflow.
+          </p>
+        </StepperContent>
+        <StepperContent value={3}>
+          <p className="text-sm text-muted-foreground">
+            Confirm the policy before scheduling renewal reminders.
+          </p>
+        </StepperContent>
+      </StepperPanel>
+    </Stepper>
+  );
+}

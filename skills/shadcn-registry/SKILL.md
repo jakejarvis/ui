@@ -17,7 +17,7 @@ Use this skill for installable registry items across all public shadcn registry 
 bun --bun ./scripts/new.ts --type registry:ui --name example-card --description "A compact card component."
 ```
 
-Use `--target` for `registry:page`, `registry:file`, and custom alias installs such as `@ui/ai/prompt-input.tsx`; use `--file-extension` for non-`ts` file items; provide font flags for `registry:font` in noninteractive mode.
+Use `--target` for `registry:page`, `registry:file`, source-backed custom alias installs such as `@ui/ai/prompt-input.tsx`, and targeted `registry:item` files. Use `--file-extension` for `registry:file` and targeted `registry:item` files. Provide font flags for `registry:font` in noninteractive mode.
 
 ## Type Map
 
@@ -40,7 +40,7 @@ Use kebab-case folder and file names.
 
 ## `_registry.mdx`
 
-Each item uses `_registry.mdx` for YAML frontmatter, optional public MDX Usage, and an optional named `Preview` export. Never list `_registry.mdx` in `files`.
+Each item uses `_registry.mdx` for YAML frontmatter and optional public MDX Usage. Put interactive previews in sibling `_preview.tsx` files. Never list `_registry.mdx` or `_preview.tsx` in `files`.
 
 Common frontmatter:
 
@@ -61,19 +61,25 @@ Dependency fields:
 
 Do not add `registry/items/**` prefixes or `sourcePath` frontmatter. The catalog derives the source path from the item folder and authored `files[].path`.
 
-Minimal usage and preview:
+Minimal usage:
 
 ````mdx
-import { ExampleCard } from "./example-card";
-
 ```tsx
 import { ExampleCard } from "@/components/ui/example-card";
 ```
+````
+
+Minimal preview:
+
+```tsx
+"use client";
+
+import { ExampleCard } from "./example-card";
 
 export function Preview() {
   return <ExampleCard />;
 }
-````
+```
 
 Keep previews client-safe: static data, local state, and events are fine; avoid network calls, auth, server functions, env reads, and app-only providers.
 

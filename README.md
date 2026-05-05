@@ -11,7 +11,7 @@ The scaffold contains a typed registry authoring layer, authored docs, live prev
 
 ## Quick Start
 
-You can either [create a new repository](https://github.com/new?template_name=_cn&template_owner=jakejarvis) based on this template directly in your GitHub account/organization, or use a tool like [`degit`](https://github.com/Rich-Harris/degit) to scaffold a fresh repo locally with the latest _cn code.
+You can either [create a new repository](https://github.com/new?template_name=_cn&template_owner=jakejarvis) based on this template directly in your GitHub account/organization, or use a tool like [`degit`](https://github.com/Rich-Harris/degit) to scaffold a fresh repo locally with the latest \_cn code.
 
 ```bash
 npx degit jakejarvis/_cn
@@ -116,10 +116,11 @@ Create a folder under `registry/items/<section>/<item-name>/`.
 ```text
 registry/items/components/example-card/
   _registry.mdx
+  _preview.tsx
   example-card.tsx
 ```
 
-Write metadata, usage docs, and the preview together in `_registry.mdx`.
+Write metadata and usage docs in `_registry.mdx`.
 
 ````mdx
 ---
@@ -133,8 +134,6 @@ localRegistryDependencies:
   - other-local-item
 ---
 
-import { ExampleCard } from "./example-card";
-
 Use the component anywhere you need a compact content summary.
 
 ```tsx
@@ -144,15 +143,23 @@ export function Example() {
   return <ExampleCard />;
 }
 ```
+````
+
+Put the interactive preview in `_preview.tsx`.
+
+```tsx
+"use client";
+
+import { ExampleCard } from "./example-card";
 
 export function Preview() {
   return <ExampleCard />;
 }
-````
+```
 
-For a one-file component, the catalog infers the source file from the item root and `name`, then emits a shadcn target placeholder such as `@ui/example-card.tsx`. List `files` explicitly in frontmatter for hooks, libs, blocks, pages, custom target paths, or any item with multiple published files; file paths are relative to the item `_registry.mdx` file. Metadata-only styles, themes, fonts, bases, and universal items can omit `files`. Do not publish `_registry.mdx` or other authoring-only files.
+For a one-file component, the catalog infers the source file from the item root and `name`, then emits a shadcn target placeholder such as `@ui/example-card.tsx`. List `files` explicitly in frontmatter for hooks, libs, blocks, pages, custom target paths, or any item with multiple published files; file paths are relative to the item `_registry.mdx` file. Metadata-only styles, themes, fonts, bases, and universal items can omit `files`. Do not publish `_registry.mdx`, `_preview.tsx`, or other authoring-only files.
 
-The MDX body renders as the optional Usage section on the docs page. Fenced code blocks are syntax highlighted and keep the docs site's copy button. The optional `Preview` export is compiled as a client-only virtual module, so hooks and event handlers are fine there, but server-only logic should stay out of previews. Use `localRegistryDependencies` for dependencies on other local registry items; they are converted into canonical registry URLs in the public JSON.
+The MDX body renders as the optional Usage section on the docs page. Fenced code blocks are syntax highlighted and keep the docs site's copy button. `_preview.tsx` is authoring-only and can use local state or events behind its `"use client"` boundary, but server-only logic should stay out of previews. Use `localRegistryDependencies` for dependencies on other local registry items; they are converted into canonical registry URLs in the public JSON.
 
 ## Server
 
@@ -164,9 +171,9 @@ The public registry index is available at both the root and `/r` paths, while in
 - `/llms.txt` and `/llms-full.txt` are generated from the same Markdown docs and registry item pages used by the site.
 
 > [!TIP]
-> _cn validates authored registry metadata against schemas directly from [`shadcn/schema`](https://github.com/shadcn-ui/ui/blob/main/packages/shadcn/src/registry/schema.ts) to ensure compatibility.
+> \_cn validates authored registry metadata against schemas directly from [`shadcn/schema`](https://github.com/shadcn-ui/ui/blob/main/packages/shadcn/src/registry/schema.ts) to ensure compatibility.
 
-### Content Negotation
+### Content Negotiation
 
 Human-facing registry URLs support the shadcn CLI's request headers. CLI requests with `Accept: application/vnd.shadcn.v1+json` or `User-Agent: shadcn` receive the shadcn-compliant JSON from the same URL as the human-readable docs page:
 
@@ -183,7 +190,7 @@ All pages also support Markdown content negotiation (inspired by [Fumadocs](http
 - [ ] Run `bun --bun ./scripts/doctor.ts` to verify changes.
 - [ ] Run `vp check` and `vp build`.
 - [ ] Deploy!
-- [ ] Test the install commands with npm, pnpm, yarn, and bun.
+- [ ] Test the install commands with npm, pnpm, yarn, bun, vite+, and deno.
 - [ ] Optionally submit your registry to shadcn's [official directory](https://ui.shadcn.com/docs/directory).
 
 ## Gotchas

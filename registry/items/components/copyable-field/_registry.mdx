@@ -11,8 +11,6 @@ localRegistryDependencies:
   - scroll-area
 ---
 
-import { CopyableField } from "./copyable-field";
-
 ### Commands and tokens
 
 Use a copyable field for install commands, API keys, and long single-line values.
@@ -97,15 +95,3 @@ export function TrackedCopyField({ command }: { command: string }) {
   );
 }
 ```
-
-export function Preview() {
-  return (
-    <div className="flex w-full max-w-xl flex-col gap-4">
-      <CopyableField
-        label="Install"
-        value="bunx --bun shadcn@latest add https://ui.jarv.is/r/copyable-field.json"
-      />
-      <CopyableField label="Token" value="jui_live_7vK8x8e8f95hK2hVv4sYQxB3" showLabel={false} />
-    </div>
-  );
-}
